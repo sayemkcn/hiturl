@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_hiturl" default="compile.module.hiturl">
+  <dirname property="module.hiturl.basedir" file="${ant.file.module_hiturl}"/>
+  
+  <property name="module.jdk.home.hiturl" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.hiturl" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.hiturl" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.hiturl" value="-encoding UTF-8 -source 1.5 -target 1.5 ${compiler.args}"/>
+  
+  <property name="hiturl.output.dir" value="${module.hiturl.basedir}/target/classes"/>
+  <property name="hiturl.testoutput.dir" value="${module.hiturl.basedir}/target/test-classes"/>
+  
+  <path id="hiturl.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="hiturl.module.production.classpath">
+    <path refid="${module.jdk.classpath.hiturl}"/>
+  </path>
+  
+  <path id="hiturl.runtime.production.module.classpath">
+    <pathelement location="${hiturl.output.dir}"/>
+  </path>
+  
+  <path id="hiturl.module.classpath">
+    <path refid="${module.jdk.classpath.hiturl}"/>
+    <pathelement location="${hiturl.output.dir}"/>
+  </path>
+  
+  <path id="hiturl.runtime.module.classpath">
+    <pathelement location="${hiturl.testoutput.dir}"/>
+    <pathelement location="${hiturl.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.hiturl">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.hiturl">
+    <patternset refid="excluded.from.module.hiturl"/>
+  </patternset>
+  
+  <path id="hiturl.module.sourcepath">
+    <dirset dir="${module.hiturl.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="hiturl.module.test.sourcepath">
+    <dirset dir="${module.hiturl.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.hiturl" depends="compile.module.hiturl.production,compile.module.hiturl.tests" description="Compile module HitUrl"/>
+  
+  <target name="compile.module.hiturl.production" depends="register.custom.compilers" description="Compile module HitUrl; production classes">
+    <mkdir dir="${hiturl.output.dir}"/>
+    <javac2 destdir="${hiturl.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.hiturl}/javac">
+      <compilerarg line="${compiler.args.hiturl}"/>
+      <bootclasspath refid="hiturl.module.bootclasspath"/>
+      <classpath refid="hiturl.module.production.classpath"/>
+      <src refid="hiturl.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.hiturl"/>
+    </javac2>
+    
+    <copy todir="${hiturl.output.dir}">
+      <fileset dir="${module.hiturl.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.hiturl.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.hiturl.tests" depends="register.custom.compilers,compile.module.hiturl.production" description="compile module HitUrl; test classes" unless="skip.tests">
+    <mkdir dir="${hiturl.testoutput.dir}"/>
+    <javac2 destdir="${hiturl.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.hiturl}/javac">
+      <compilerarg line="${compiler.args.hiturl}"/>
+      <bootclasspath refid="hiturl.module.bootclasspath"/>
+      <classpath refid="hiturl.module.classpath"/>
+      <src refid="hiturl.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.hiturl"/>
+    </javac2>
+    
+    <copy todir="${hiturl.testoutput.dir}">
+      <fileset dir="${module.hiturl.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.hiturl" description="cleanup module">
+    <delete dir="${hiturl.output.dir}"/>
+    <delete dir="${hiturl.testoutput.dir}"/>
+  </target>
+</project>
